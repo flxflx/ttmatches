@@ -9,6 +9,13 @@ const INITIAL_RATING = 1200;
  * result: 'player1' | 'player2' | 'draw'
  */
 function calculateElo(matches) {
+  // Ensure we always work with an array; if the API returns an object or null,
+  // treat it as an empty list of matches.
+  if (!Array.isArray(matches)) {
+    console.warn('calculateElo expected an array but received', matches);
+    return {};
+  }
+
   const ratings = {};
 
   matches.forEach(({ player1, player2, result }) => {
