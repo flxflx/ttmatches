@@ -101,6 +101,16 @@ export default function Home() {
     setResult('draw');
   };
 
+  // Delete a match by its unique date identifier
+  const handleDelete = async (date) => {
+    // Send the date as a query parameter; DELETE bodies are not reliably parsed
+    const res = await fetch(`/api/matches?date=${encodeURIComponent(date)}`, {
+      method: 'DELETE',
+    });
+    const updated = await res.json();
+    setMatches(updated);
+  };
+
   const sortedRatings = Object.entries(ratings).sort((a, b) => b[1] - a[1]);
 
   return (
@@ -170,17 +180,23 @@ export default function Home() {
         <p>No matches recorded.</p>
       ) : (
         <ul>
-          {matches.map((m, idx) => (
-            <li key={idx}>
-              {m.player1} vs {m.player2} –{' '}
-              {m.result === 'player1'
-                ? `${m.player1} won`
-                : m.result === 'player2'
-                ? `${m.player2} won`
-                : 'Draw'}{' '}
-              ({new Date(m.date).toLocaleDateString()})
-            </li>
-          ))}
+            {matches.map((m, idx) => (
+              <li key={idx}>
+                {m.player1} vs {m.player2} –{' '}
+                {m.result === 'player1'
+                  ? `${m.player1} won`
+                  : m.result === 'player2'
+                  ? `${m.player2} won`
+                  : 'Draw'}{' '}
+                ({new Date(m.date).toLocaleDateString()})
+                <button
+                  style={{ marginLeft: '0.5rem' }}
+                  onClick={() => handleDelete(m.date)}
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
         </ul>
       )}
     </div>

@@ -45,8 +45,29 @@ export default async function handler(req, res) {
       inMemoryMatches.push(newMatch);
       res.status(200).json(inMemoryMatches);
     }
+  } else if (req.method === 'DELETE') {
+    const date = req.query?.date || req.body?.date;
+    if (!date) {
+      res.status(400).json({ error: 'Missing date identifier for deletion' });
+      return;
+    }
+    if (hasKvCredentials) {
+      try {
+        const stored = await kv.get('matches');
+        const matches = stored ? JSON.parse(stored) : [];
+        const filtered = matches.filter((m) => m.date !== date);
+        await kv.set('matches', JSON.stringify(filtered));
+        res.status(200).json(filtered);
+      } catch (error) {
+        console.error('Error deleting match from KV:', error);
+        res.status(500).json({ error: 'Failed to delete match' });
+      }
+    } else {
+      inMemoryMatches = inMemoryMatches.filter((m) => m.date !== date);
+      res.status(200).json(inMemoryMatches);
+    }
   } else {
-    res.setHeader('Allow', ['GET', 'POST']);
+    res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
