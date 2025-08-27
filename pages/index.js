@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSession, signIn, signOut } from 'next-auth/react';
 
 const K = 32;
 const INITIAL_RATING = 1200;
@@ -49,6 +50,10 @@ function calculateElo(matches) {
 }
 
 export default function Home() {
+  const { data: session, status } = useSession();
+  const loading = status === 'loading';
+
+  // State hooks must be called unconditionally
   const [matches, setMatches] = useState([]);
   const [ratings, setRatings] = useState({});
   const [player1, setPlayer1] = useState('');
@@ -103,13 +108,26 @@ export default function Home() {
 
   // Delete a match by its unique date identifier
   const handleDelete = async (date) => {
-    // Send the date as a query parameter; DELETE bodies are not reliably parsed
     const res = await fetch(`/api/matches?date=${encodeURIComponent(date)}`, {
       method: 'DELETE',
     });
     const updated = await res.json();
     setMatches(updated);
   };
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (!session) {
+    return (
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
+        <h1>Elo Tracker</h1>
+        <p>You must be signed in to view this page.</p>
+        <button onClick={() => signIn()}>Sign In</button>
+      </div>
+    );
+  }
 
   const sortedRatings = Object.entries(ratings).sort((a, b) => b[1] - a[1]);
 
@@ -151,6 +169,9 @@ export default function Home() {
           </label>
         </div>
         <button type="submit">Add Match</button>
+        <button type="button" onClick={() => signOut()} style={{ marginLeft: '0.5rem' }}>
+          Sign Out
+        </button>
       </form>
 
       <h2>Current Ratings</h2>
@@ -180,23 +201,23 @@ export default function Home() {
         <p>No matches recorded.</p>
       ) : (
         <ul>
-            {matches.map((m, idx) => (
-              <li key={idx}>
-                {m.player1} vs {m.player2} –{' '}
-                {m.result === 'player1'
-                  ? `${m.player1} won`
-                  : m.result === 'player2'
-                  ? `${m.player2} won`
-                  : 'Draw'}{' '}
-                ({new Date(m.date).toLocaleDateString()})
-                <button
-                  style={{ marginLeft: '0.5rem' }}
-                  onClick={() => handleDelete(m.date)}
-                >
-                  Delete
-                </button>
-              </li>
-            ))}
+          {matches.map((m, idx) => (
+            <li key={idx}>
+              {m.player1} vs {m.player2} –{' '}
+              {m.result === 'player1'
+                ? `${m.player1} won`
+                : m.result === 'player2'
+                ? `${m.player2} won`
+                : 'Draw'}{' '}
+              ({new Date(m.date).toLocaleDateString()})
+              <button
+                style={{ marginLeft: '0.5rem' }}
+                onClick={() => handleDelete(m.date)}
+              >
+                Delete
+              </button>
+            </li>
+          ))}
         </ul>
       )}
     </div>
