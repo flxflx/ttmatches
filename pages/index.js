@@ -64,10 +64,12 @@ export default function Home() {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        const res = await fetch('/api/matches');
-        const data = await res.json();
-        setMatches(data);
-        setRatings(calculateElo(data));
+const res = await fetch('/api/matches');
+const data = await res.json();
+// The API may return an array directly or an object containing the array under a `matches` key.
+const matchesArray = Array.isArray(data) ? data : (data?.matches ?? []);
+setMatches(matchesArray);
+setRatings(calculateElo(matchesArray));
       } catch (e) {
         console.error('Failed to fetch matches', e);
       }
@@ -99,8 +101,9 @@ export default function Home() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newMatch),
     });
-    const updated = await res.json();
-    setMatches(updated);
+const updated = await res.json();
+const matchesArray = Array.isArray(updated) ? updated : (updated?.matches ?? []);
+setMatches(matchesArray);
     setPlayer1('');
     setPlayer2('');
     setResult('draw');
@@ -111,8 +114,9 @@ export default function Home() {
     const res = await fetch(`/api/matches?date=${encodeURIComponent(date)}`, {
       method: 'DELETE',
     });
-    const updated = await res.json();
-    setMatches(updated);
+const updated = await res.json();
+const matchesArray = Array.isArray(updated) ? updated : (updated?.matches ?? []);
+setMatches(matchesArray);
   };
 
   if (loading) {
