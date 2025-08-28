@@ -75,22 +75,27 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     const matches = await getCurrentMatches();
+    // Indicate which storage mode is being used
+    res.setHeader('X-Storage-Mode', hasKvCredentials ? 'kv' : 'fallback');
     res.status(200).json(matches);
   } else if (req.method === 'POST') {
     const newMatch = req.body;
     const matches = await getCurrentMatches();
     matches.push(newMatch);
     await persistMatches(matches);
+    res.setHeader('X-Storage-Mode', hasKvCredentials ? 'kv' : 'fallback');
     res.status(200).json(matches);
   } else if (req.method === 'DELETE') {
     const date = req.query?.date || req.body?.date;
     if (!date) {
+      res.setHeader('X-Storage-Mode', hasKvCredentials ? 'kv' : 'fallback');
       res.status(400).json({ error: 'Missing date identifier for deletion' });
       return;
     }
     const matches = await getCurrentMatches();
     const filtered = matches.filter((m) => m.date !== date);
     await persistMatches(filtered);
+    res.setHeader('X-Storage-Mode', hasKvCredentials ? 'kv' : 'fallback');
     res.status(200).json(filtered);
   } else {
     res.setHeader('Allow', ['GET', 'POST', 'DELETE']);

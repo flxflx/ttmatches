@@ -59,19 +59,24 @@ export default function Home() {
   const [player1, setPlayer1] = useState('');
   const [player2, setPlayer2] = useState('');
   const [result, setResult] = useState('draw');
+  const [kvFallback, setKvFallback] = useState(false);
 
   // Load matches from the server (or empty) on mount
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-const res = await fetch('/api/matches');
-const data = await res.json();
-// The API may return an array directly or an object containing the array under a `matches` key.
-const matchesArray = Array.isArray(data) ? data : (data?.matches ?? []);
-setMatches(matchesArray);
-setRatings(calculateElo(matchesArray));
+        const res = await fetch('/api/matches');
+        const data = await res.json();
+        // The API may return an array directly or an object containing the array under a `matches` key.
+        const matchesArray = Array.isArray(data) ? data : (data?.matches ?? []);
+        setMatches(matchesArray);
+        setRatings(calculateElo(matchesArray));
+        // Detect if the API is using the fallback JSON file (no KV credentials)
+        const storageMode = res.headers.get('X-Storage-Mode');
+        setKvFallback(storageMode === 'fallback');
       } catch (e) {
         console.error('Failed to fetch matches', e);
+        setKvFallback(true); // assume fallback on error
       }
     };
     fetchMatches();
@@ -127,6 +132,11 @@ setMatches(matchesArray);
     return (
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
         <h1>Elo Tracker</h1>
+        {kvFallback && (
+          <div style={{ color: 'red', backgroundColor: '#ffe5e5', padding: '0.5rem', marginBottom: '1rem' }}>
+            Warning: Using fallback storage (local JSON file). Data may not persist across restarts.
+          </div>
+        )}
         <p>You must be signed in to view this page.</p>
         <button onClick={() => signIn()}>Sign In</button>
       </div>
@@ -138,6 +148,11 @@ setMatches(matchesArray);
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
       <h1>Elo Tracker</h1>
+      {kvFallback && (
+        <div style={{ color: 'red', backgroundColor: '#ffe5e5', padding: '0.5rem', marginBottom: '1rem' }}>
+          Warning: Using fallback storage (local JSON file). Data may not persist across restarts.
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} style={{ marginBottom: '2rem' }}>
         <div style={{ marginBottom: '0.5rem' }}>
