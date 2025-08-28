@@ -128,31 +128,46 @@ setMatches(matchesArray);
     return <p>Loading...</p>;
   }
 
-  if (!session) {
+    if (!session) {
     return (
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-        <h1>Elo Tracker</h1>
-        {kvFallback && (
-          <div style={{ color: 'red', backgroundColor: '#ffe5e5', padding: '0.5rem', marginBottom: '1rem' }}>
-            Warning: Using fallback storage (local JSON file). Data may not persist across restarts.
+        <div style={{
+          width: '100vw',
+          minHeight: '100vh',
+          margin: 0,
+          padding: 0,
+          background: 'linear-gradient(45deg, blue, purple)',
+        }}>
+          <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
+            <h1>🏓 Elo Tracker</h1>
+            {kvFallback && (
+              <div style={{ color: 'red', backgroundColor: '#ffe5e5', padding: '0.5rem', marginBottom: '1rem' }}>
+                Warning: Using fallback storage (local JSON file). Data may not persist across restarts.
+              </div>
+            )}
+            <p>You must be signed in to view this page.</p>
+            <button onClick={() => signIn()}>Sign In</button>
           </div>
-        )}
-        <p>You must be signed in to view this page.</p>
-        <button onClick={() => signIn()}>Sign In</button>
-      </div>
+        </div>
     );
   }
 
   const sortedRatings = Object.entries(ratings).sort((a, b) => b[1] - a[1]);
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-      <h1>Elo Tracker</h1>
-      {kvFallback && (
-        <div style={{ color: 'red', backgroundColor: '#ffe5e5', padding: '0.5rem', marginBottom: '1rem' }}>
-          Warning: Using fallback storage (local JSON file). Data may not persist across restarts.
-        </div>
-      )}
+    <div style={{
+      width: '100vw',
+      minHeight: '100vh',
+      margin: 0,
+      padding: 0,
+      background: 'linear-gradient(45deg, blue, purple)',
+    }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
+        <h1>🏓 Elo Tracker</h1>
+        {kvFallback && (
+          <div style={{ color: 'red', backgroundColor: '#ffe5e5', padding: '0.5rem', marginBottom: '1rem' }}>
+            Warning: Using fallback storage (local JSON file). Data may not persist across restarts.
+          </div>
+        )}
 
       <form onSubmit={handleSubmit} style={{ marginBottom: '2rem' }}>
         <div style={{ marginBottom: '0.5rem' }}>
@@ -193,7 +208,7 @@ setMatches(matchesArray);
         </button>
       </form>
 
-      <h2>Current Ratings</h2>
+      <h2>📈 Current Ratings</h2>
       {sortedRatings.length === 0 ? (
         <p>No matches recorded yet.</p>
       ) : (
@@ -215,7 +230,7 @@ setMatches(matchesArray);
         </table>
       )}
 
-      <h2 style={{ marginTop: '2rem' }}>Match History</h2>
+      <h2 style={{ marginTop: '2rem' }}>📃 Match History</h2>
       {matches.length === 0 ? (
         <p>No matches recorded.</p>
       ) : (
@@ -239,6 +254,7 @@ setMatches(matchesArray);
           ))}
         </ul>
       )}
+    </div>
     </div>
   );
 }
