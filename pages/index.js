@@ -124,6 +124,11 @@ const matchesArray = Array.isArray(updated) ? updated : (updated?.matches ?? [])
 setMatches(matchesArray);
   };
 
+  // Compute a sorted copy of matches for display (newest first)
+  const sortedMatches = [...matches].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -235,8 +240,8 @@ setMatches(matchesArray);
         <p>No matches recorded.</p>
       ) : (
         <ul>
-          {matches.map((m, idx) => (
-            <li key={idx}>
+          {sortedMatches.map((m) => (
+            <li key={m.date}>
               {m.player1} vs {m.player2} –{' '}
               {m.result === 'player1'
                 ? `${m.player1} won`
